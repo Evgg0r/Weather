@@ -22,6 +22,7 @@ main {
 .search-bar {
     height: 45px;
     border: 1px solid #000;
+    margin-bottom: 0px;
 }
 
 .search-span {
@@ -40,5 +41,31 @@ main {
 
 .info-section {
     height: 315px;
-    border: 1px solid #000;
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
+    border-bottom: 1px solid #000;
+}
+
+.info-current {
+    width: 300px;
+    height: 315px;
+    border-right: 1px solid #000;
+    padding: 16px;
+}
+
+.city-info {
+    width: 265px;
+    height: 28px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.info-locations {
+    width: 300px;
+}
+
+.locations-input {
+    width: 68px;
+    padding-right: 18px;
+    padding-bottom: 18px;
 }
