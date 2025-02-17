@@ -22,10 +22,14 @@ main {
 .search-bar {
     height: 45px;
     border: 1px solid #000;
-    margin-bottom: 0px;
+    padding: 12px 16px;
+    display: flex; 
+    align-items: center;
+    justify-content: space-between;
 }
 
 .search-span {
+    display: block;
     font-family: "Roboto", sans-serif;
     font-weight: 400;
     font-size: 18px;
@@ -33,10 +37,10 @@ main {
 }
 
 .search-button {
-    width: 30px;
-    height: 30px;
     background-color: #FFF;
-    border: 1px solid transparent;
+    border: none;
+
+    
 }
 
 .info-section {
@@ -44,6 +48,7 @@ main {
     border-left: 1px solid #000;
     border-right: 1px solid #000;
     border-bottom: 1px solid #000;
+    display: flex
 }
 
 .info-current {
@@ -53,6 +58,13 @@ main {
     padding: 16px;
 }
 
+.temperature {
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-size: 70px;
+    color: #000;
+}
+
 .city-info {
     width: 265px;
     height: 28px;
@@ -60,12 +72,44 @@ main {
     justify-content: space-between;
 }
 
+.save-favourites {
+    background-color: #FFF;
+    border: 1px solid transparent;
+}
+
 .info-locations {
     width: 300px;
 }
 
-.locations-input {
-    width: 68px;
-    padding-right: 18px;
-    padding-bottom: 18px;
+.locations-info {
+    height: 68px;
+    width: 300px;
+    border-bottom: 1px solid #000;
+    padding: 23px 0 18px 18px;
+}
+
+.location-info {
+    display: block;
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-size: 24px;
+    color: #000;
+}
+
+.listed {
+    padding: 35px 0 0 18px;
+}
+ul {
+    list-style-type: none;
+    padding-left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+li {
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-size: 24px;
+    color: #000;
 }
