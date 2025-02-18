@@ -23,24 +23,24 @@ main {
     height: 45px;
     border: 1px solid #000;
     padding: 12px 16px;
-    display: flex; 
+    display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.search-span {
-    display: block;
+.search-input {
     font-family: "Roboto", sans-serif;
     font-weight: 400;
     font-size: 18px;
     color: #696969;
+    border: none;
 }
 
 .search-button {
     background-color: #FFF;
     border: none;
 
-    
+
 }
 
 .info-section {
@@ -56,6 +56,9 @@ main {
     height: 315px;
     border-right: 1px solid #000;
     padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .temperature {
@@ -63,6 +66,16 @@ main {
     font-weight: 400;
     font-size: 70px;
     color: #000;
+}
+.icon-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.weather-icon {
+    width: 78px;
+    height: 59px;
 }
 
 .city-info {
@@ -99,6 +112,7 @@ main {
 .listed {
     padding: 35px 0 0 18px;
 }
+
 ul {
     list-style-type: none;
     padding-left: 0;
