@@ -97,13 +97,3 @@ list.addEventListener('click', (e) => {
         }
     }
 });
-
-
-
-
-
-
-if (event.target.classList.contains("trashNote")) {
-    const noteId = +event.target.closest('li').id
-    controller.deleteNotes(noteId)
-}
