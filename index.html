@@ -11,7 +11,7 @@
 <body>
     <main>
         <div class="search-bar">
-            <span class="search-span">Aktobe</span>
+            <input type="text" class="search-input" placeholder="Введите город">
             <button class="search-button" >
                 <img src="./search.svg" alt="Search">
             </button>
@@ -19,7 +19,9 @@
         <div class="info-section">
             <div class="info-current">
                 <span class="temperature">14&deg;</span>
-                <img class="weather-icon" src="./icon-cloud.png" alt="Cloudy">
+                <div class="icon-container">
+                    <img class="weather-icon" src="./icon-cloud.svg" alt="Cloudy">
+                </div>
                 <div class="city-info">
                     <span class="city-name">Aktobe</span>
                     <button class="save-favourites">
@@ -32,7 +34,7 @@
                     <span class="location-info">Added Locations:</span>
                 </div>
                 <div class="listed">
-                    <ul class="list">
+                    <ul class="city-list">
                         <li>Amur</li>
                         <li>Samara</li>
                         <li>Bali</li>
@@ -43,6 +45,7 @@
             </div>
         </div>
     </main>
+    <script src="./main.js"></script>
 </body>
 
 </html>
