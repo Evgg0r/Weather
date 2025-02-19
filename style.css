@@ -3,6 +3,9 @@
     margin: 0;
     box-sizing: border-box;
 }
+.hidden {
+    display: none;
+}
 
 body {
     border: 1px solid #fff;
