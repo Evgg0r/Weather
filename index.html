@@ -13,78 +13,46 @@
         <div class="search-bar">
             <input type="text" class="search-input" placeholder="Введите город">
             <button class="search-button">
-                <img src="./search.svg" alt="Search">
+                <img src="./icons/Search.svg" alt="Search">
             </button>
         </div>
         <div class="info-section">
             <div class="info-current">
                 <div class="city-info">
-                    <span class="city-name">Aktobe</span>
-                    <button class="save-favourites">
-                        <img src="./Shape.svg" alt="">
+                    <span class="city-current"></span>
+                    <button class="save-favorites">
+                        <img class='shape' src="./icons/Shape.svg" alt="">
                     </button>
                 </div>
-                <div class="temp-container">
-                    <span class="temperature">14</span>
-                    <img class="weather-icon" src="./icon-cloud.svg" alt="Cloudy">
+                <div class="info-temp-container">
+                    
                 </div>
 
-                <div class="general-info">
-                    <p class="feels-like">Feels like: <span class="value">10</span></p>
-                    <p class="sunrise">Sunrise: <span class="value">03:21</span></p>
-                    <p class="sunset">Sunset: <span class="value">8:54</span></p>
+                <div class="main-forecast-blog">
+                    <p class="maim-temp-feels-like">Feels like: <span class="maim-temp-feels-like-value"></span></p>
+                    <p class="sunrise">Sunrise: <span class="sunrise-time"></span></p>
+                    <p class="sunset">Sunset: <span class="sunset-time"></span></p>
                 </div>
 
-                <div class="time-slot">
-                    <span class="time">12:00</span>
-                    <div class="weather-data">
-                        <div class="temperature-block">
-                            <p>Temperature: <span class="value">13</span></p>
-                            <p>Feels like: <span class="value">11</span></p>
-                        </div>
-                        <img class="weather-icon" src="./icon-rain.svg" alt="Rain">
-                    </div>
-                </div>
+                <ul class="forecast-day">
 
-                <div class="time-slot">
-                    <span class="time">15:00</span>
-                    <div class="weather-data">
-                        <div class="temperature-block">
-                            <p>Temperature: <span class="value">13</span></p>
-                            <p>Feels like: <span class="value">11</span></p>
-                        </div>
-                        <img class="weather-icon" src="./icon-rain.svg" alt="Rain">
-                    </div>
-                </div>
-
-                <div class="time-slot">
-                    <span class="time">18:00</span>
-                    <div class="weather-data">
-                        <div class="temperature-block">
-                            <p>Temperature: <span class="value">13</span></p>
-                            <p>Feels like: <span class="value">11</span></p>
-                        </div>
-                        <img class="weather-icon" src="./icon-rain.svg" alt="Rain">
-                    </div>
-                </div>
+                </ul>
             </div>
+
             <div class="info-locations">
                 <div class="locations-info">
                     <span class="location-info">Added Locations:</span>
                 </div>
                 <div class="listed">
                     <ul class="city-list">
-                        <li>Amur</li>
-                        <li>Samara</li>
-                        <li>Bali</li>
-                        <li>Dane</li>
-                        <li>Kilo</li>
+
                     </ul>
                 </div>
             </div>
         </div>
     </main>
-    <script src="./main.js"></script>
+    <script type="module" src="./main.js"></script>
+    <script type="module" src="./constants.js"></script>
 </body>
 
 </html>

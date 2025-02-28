@@ -1,167 +1,209 @@
-const cities = [];
+import {
+    SHAPE_IMG,
+    INPUT_CITY,
+    NAME_CITY_SELECTED,
+    SEARCH_BTN,
+    ADD_FAVORITES_BTN,
+    FAVORITES_LIST,
+    MAIN_TEMP_FEELS_VALUE,
+    ABSOLUTE_ZERO_CELSIUS,
+    SUNRISE_TIME,
+    SUNSET_TIME,
+    FORECAST_DAY,
+    INFO_TEMPERATURE_CONT,
+    FAVORITE_CITIES,
+} from "./constants.js";
+import {
+    getWeatherUrl,
+    getForecastUrl,
+    fetchWeatherData,
+} from "./fetch.js";
 
-const addCity = () => {
-    const input = document.querySelector('.search-input');
-    const inputText = input.value.trim();
+let currentCity = '';
 
-    const serverUrl = 'http://api.openweathermap.org/data/2.5/weather';
-    const apiKey = 'f660a2fb1e4bad108d6160b7f58c555f'; // 
-    const url = `${serverUrl}?q=${inputText}&appid=${apiKey}`;
+SEARCH_BTN.addEventListener('click', () => {
+    currentCity = INPUT_CITY.value.trim();
+    addCityName(currentCity);
+});
 
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Ошибка сети: ${response.status}`);
-            }
-            return response.json();
-        })
+INPUT_CITY.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        currentCity = INPUT_CITY.value.trim();
+        addCityName(currentCity);
+    }
+});
+
+ADD_FAVORITES_BTN.addEventListener('click', function () {
+    addFavoritesList(currentCity)
+});
+
+const addCityName = (City) => {
+    fetchWeatherData(City, getForecastUrl)
         .then(data => {
-            console.log('Данные:', data);
-
-            if (data.name) {
-                const cityName = document.querySelector('.city-name');
-                cityName.textContent = data.name;
-
-
-                if (inputText !== "") {
-                    const newCity = {
-                        id: new Date().getTime(),
-                        nameCity: data.name,
-                        statusFavourites: false,
-                    };
-
-                    cities.push(newCity);
-                    input.value = '';
-                    renderCities();
+            if (City !== "") {
+                currentCity = data.city.name
+                NAME_CITY_SELECTED.textContent = currentCity;
+                INPUT_CITY.value = '';
+                addWeatherTemp(currentCity)
+                if (FAVORITE_CITIES.find(el => el.nameCity === currentCity)) {
+                    SHAPE_IMG.setAttribute('src', '../icons/Shape-full.svg');
+                } else {
+                    SHAPE_IMG.setAttribute('src', '../icons/Shape.svg');
                 }
             } else {
-                alert("Город не найден!");
+                return alert("Пожалуйста, введите название города.");
             }
         })
         .catch(error => {
-            console.error('Произошла ошибка:', error.message);
+            console.error('Ошибка при добавлении города:', error.message);
         });
 };
 
 const renderCities = () => {
-    const list = document.querySelector('.city-list');
-    list.innerHTML = '';
+    FAVORITES_LIST.innerHTML = '';
 
-    cities.forEach(city => {
-        const listItem = document.createElement('li');
-        listItem.id = `${city.id}`
-        listItem.innerHTML = `${city.nameCity} <b>X</b>`;
-        if (!city.statusFavourites) {
-            listItem.classList.add('hidden');
-        }
+    FAVORITE_CITIES.forEach(city => {
+        const li = document.createElement('li')
+        li.classList.add('city')
 
-        list.appendChild(listItem);
-    });
-};
+        const cityName = document.createElement('span')
+        cityName.textContent = city.nameCity
+        cityName.classList.add('city-name')
+        cityName.addEventListener('click', () => addCityName(city.nameCity))
 
-const searchBtn = document.querySelector('.search-button');
-searchBtn.addEventListener('click', addCity);
+        const deleteBtn = document.createElement('button')
+        deleteBtn.id = city.id
+        deleteBtn.textContent = 'X'
+        deleteBtn.classList.add('delete')
+        deleteBtn.addEventListener('click', () => deleteCity(city.id))
 
-document.querySelector('.search-input').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        addCity();
-    }
-});
+        li.appendChild(cityName)
+        li.appendChild(deleteBtn)
+        FAVORITES_LIST.appendChild(li);
+    })
+}
 
-const favouritesBtn = document.querySelector('.save-favourites');
+const deleteCity = function(id) {
+            const newFavoriteCities = FAVORITE_CITIES.filter((city) => city.id !== id)
+            FAVORITE_CITIES.splice(0, FAVORITE_CITIES.length);
+            FAVORITE_CITIES.push(...newFavoriteCities);
+            renderCities()
+}
 
-favouritesBtn.addEventListener('click', () => {
-    const cityName = document.querySelector('.city-name').textContent;
-    const city = cities.find(el => el.nameCity === cityName);
-
-    if (city) {
-        if (!city.statusFavourites)
-            city.statusFavourites = !city.statusFavourites;
+const addFavoritesList = function (City) {
+    if (!FAVORITE_CITIES.find(el => el.nameCity === City)) {
+        const newCity = {
+            id: new Date().getTime(),
+            nameCity: City,
+        };        
+        FAVORITE_CITIES.push(newCity);
+        SHAPE_IMG.setAttribute('src', './icons/Shape-full.svg');
     }
     renderCities();
-});
+}
 
-const list = document.querySelector('.city-list');
-list.addEventListener('click', (e) => {
-    if (e.target.tagName === 'B') {
-        const noteId = +e.target.closest('li').id;
-        const index = cities.findIndex(city => city.id === noteId);
+const convertKelvinToCelsius = function (temp) {
+    return Math.floor(temp - ABSOLUTE_ZERO_CELSIUS)
+};
 
-        if (index !== -1) {
-            cities.splice(index, 1);
-            renderCities();
-        }
-    }
-});
+const formatTimestampToTime = function (timeStamp) {
+    const newTimeStamp = new Date(timeStamp * 1000)
+    const hoursSunrise = String(newTimeStamp.getHours()).padStart(2, '0');
+    const minutesSunrise = String(newTimeStamp.getMinutes()).padStart(2, '0');
+    const timeString = `${hoursSunrise}:${minutesSunrise}`;
 
-const cityName = document.querySelector('.city-name')
-cityName.addEventListener('click', addDataWeather)
+    return timeString;
+}
 
-function addDataWeather() {
-    const citySpan = document.querySelector('.city-name');
-    const cityName = citySpan.textContent
-
-
-    const serverUrl = 'http://api.openweathermap.org/data/2.5/weather';
-    const apiKey = 'f660a2fb1e4bad108d6160b7f58c555f'; // 
-    const url = `${serverUrl}?q=${cityName}&appid=${apiKey}`;
-
-    fetch(url)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Ошибка сети ${response.status}`)
-            }
-            return response.json()
-        })
+const addWeatherTemp = function (currentCity) {
+    fetchWeatherData(currentCity, getWeatherUrl)
         .then(data => {
-            console.log('Данные:', data);
-
-            const tempValue = Math.floor(data.main.temp - 273.15);
-            const temperature = document.querySelector('.temperature');
-            temperature.textContent = tempValue;
-
-
-            const tempFeels = Math.floor(data.main.feels_like - 273.15);
-            const feelsLikeEl = document.querySelector('.feels-like');
-            const feelsLikeValue = feelsLikeEl.querySelector('.value');
-            feelsLikeValue.textContent = tempFeels
-
-
-            const timeSunrise = new Date (data.sys.sunrise * 1000)
-            const hoursSunrise = String(timeSunrise.getHours()).padStart(2, '0'); 
-            const minutesSunrise = String(timeSunrise.getMinutes()).padStart(2, '0');
-            const timeSunriseValue = `${hoursSunrise}:${minutesSunrise}`;
-
-            const sunriseEl = document.querySelector('.sunrise');
-            const sunriseValue = sunriseEl.querySelector('.value');
-            sunriseValue.textContent = timeSunriseValue
-
-
-            const timeSunset = new Date (data.sys.sunset * 1000)
-            const hoursSunset = String(timeSunset.getHours()).padStart(2, '0'); 
-            const minutesSunset = String(timeSunset.getMinutes()).padStart(2, '0');
-            const timeSunsetValue = `${hoursSunset}:${minutesSunset}`;
-
-            const sunsetEl = document.querySelector('.sunset');
-            const sunsetValue = sunsetEl.querySelector('.value');
-            sunsetValue.textContent = timeSunsetValue
-
-            const iconWeather = document.querySelectorAll('.weather-icon');
-            const cloudsIcon = data.weather[0].icon
-            console.log(cloudsIcon);
-            
-
-            if (cloudsIcon === '13d') {
-                iconWeather.forEach((icon) => {
-                    icon.src = './icon-rain.svg';
-                })
-            } else if (cloudsIcon === '02d' || cloudsIcon === '04d') {
-                iconWeather.forEach((icon) => {
-                    icon.src = './icon-cloud.svg';
-                })
-            }
+            renderWeatherCity(data)
+            MAIN_TEMP_FEELS_VALUE.textContent = convertKelvinToCelsius(data.main.feels_like)            
+            SUNRISE_TIME.textContent = formatTimestampToTime(data.sys.sunrise)
+            SUNSET_TIME.textContent = formatTimestampToTime(data.sys.sunset)
+            addForecastTemp(currentCity)
         })
         .catch(error => {
-            console.error('Произошла ошибка:', error.message);
+            console.error('Ошибка при добавлении погоды города:', error.message);
         });
 }
+const addForecastTemp = function (currentCity) {
+    fetchWeatherData(currentCity, getForecastUrl)
+        .then(data => {
+            renderForecastDay(data)
+        })
+        .catch(error => {
+            console.error('Ошибка при добавлении списка поголы на день:', error.message);
+        });
+}
+
+const renderWeatherCity = function (data) {
+    INFO_TEMPERATURE_CONT.innerHTML = ""
+
+    const temperatureAir = document.createElement('span');
+    temperatureAir.classList.add('temperature-air');
+    temperatureAir.textContent = convertKelvinToCelsius(data.main.temp);;
+
+
+    const weatherIcon = document.createElement('img');
+    weatherIcon.classList.add('weather-icon');
+    weatherIcon.src = createSrcIconWeather(data.weather[0].icon);
+    weatherIcon.alt = "Weather Icon";
+
+    INFO_TEMPERATURE_CONT.appendChild(temperatureAir);
+    INFO_TEMPERATURE_CONT.appendChild(weatherIcon);
+}
+
+
+const renderForecastDay = function (data) {
+    FORECAST_DAY.innerHTML = ''
+
+    for (let i = 0; i < 3; i++) {
+        const li = document.createElement('li');
+        li.classList.add('time-slot');
+
+        const timeSpan = document.createElement('span');
+        timeSpan.classList.add('time');
+        timeSpan.textContent = formatTimestampToTime(data.list[i].dt);
+
+        const weatherDataDiv = document.createElement('div');
+        weatherDataDiv.classList.add('weather-data');
+
+        const temperatureBlock = document.createElement('div');
+        temperatureBlock.classList.add('temperature-block');
+
+        const temperatureParagraph = document.createElement('p');
+        temperatureParagraph.innerHTML = `Temperature: <span class="value">${convertKelvinToCelsius(data.list[i].main.temp)}</span>`;
+        temperatureBlock.appendChild(temperatureParagraph);
+
+        const feelsLikeParagraph = document.createElement('p');
+        feelsLikeParagraph.innerHTML = `Feels like: <span class="value">${convertKelvinToCelsius(data.list[i].main.feels_like)}</span>`;
+        temperatureBlock.appendChild(feelsLikeParagraph);
+
+        weatherDataDiv.appendChild(temperatureBlock);
+
+        const weatherIcon = document.createElement('img');
+        weatherIcon.classList.add('weather-icon');
+        weatherIcon.src = createSrcIconWeather(data.list[i].weather[0].icon);
+        weatherIcon.alt = 'not';
+        weatherDataDiv.appendChild(weatherIcon);
+
+        li.appendChild(timeSpan);
+        li.appendChild(weatherDataDiv);
+
+        FORECAST_DAY.appendChild(li);
+        
+    }
+}
+
+const createSrcIconWeather = function (iconCodFetch) {
+    if (iconCodFetch === '01n') {
+        return './icons/Icon-rain.svg';
+    } else if (iconCodFetch === '02n' || iconCodFetch === '03n') {
+        return './icons/Icon-cloud.svg';
+    } else {
+        return './icons/Icon-cloud.svg';
+    }
+}
+
