@@ -4,6 +4,7 @@
     box-sizing: border-box;
 }
 
+
 body {
     border: 1px solid #fff;
     width: 621px;
@@ -23,28 +24,26 @@ main {
     height: 45px;
     border: 1px solid #000;
     padding: 12px 16px;
-    display: flex; 
+    display: flex;
     align-items: center;
     justify-content: space-between;
 }
 
-.search-span {
-    display: block;
+.search-input {
     font-family: "Roboto", sans-serif;
     font-weight: 400;
     font-size: 18px;
     color: #696969;
+    border: none;
 }
 
 .search-button {
     background-color: #FFF;
     border: none;
-
-    
 }
 
 .info-section {
-    height: 315px;
+    height: auto;
     border-left: 1px solid #000;
     border-right: 1px solid #000;
     border-bottom: 1px solid #000;
@@ -53,16 +52,32 @@ main {
 
 .info-current {
     width: 300px;
-    height: 315px;
+    height: auto;
     border-right: 1px solid #000;
     padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
-.temperature {
+.temperature-air {
     font-family: "Roboto", sans-serif;
     font-weight: 400;
     font-size: 70px;
     color: #000;
+}
+
+.info-temp-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    margin-bottom: 16px;
+}
+
+.weather-icon {
+    width: 48px;
+    height: 48px;
+    margin-top: 7px;
 }
 
 .city-info {
@@ -70,9 +85,17 @@ main {
     height: 28px;
     display: flex;
     justify-content: space-between;
+    margin-bottom: 16px;
 }
 
-.save-favourites {
+.city-current {
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-size: 28px;
+    color: #000;
+}
+
+.save-favorites {
     background-color: #FFF;
     border: 1px solid transparent;
 }
@@ -99,6 +122,7 @@ main {
 .listed {
     padding: 35px 0 0 18px;
 }
+
 ul {
     list-style-type: none;
     padding-left: 0;
@@ -112,4 +136,76 @@ li {
     font-weight: 400;
     font-size: 24px;
     color: #000;
+}
+
+.delete {
+    margin-left: 10px;
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-size: 24px;
+    color: #000;
+    background: none;
+    border: none;
+    fill: "black"
+}
+
+.main-forecast-blogg {
+    margin-bottom: 21px;
+}
+
+.main-forecast-blog p {
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-size: 21px;
+    color: #000;
+}
+
+p .value {
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-size: 21px;
+    color: #000;
+}
+
+.time-slot {
+    width: 265px;
+    min-height: 92px;
+    padding: 10px;
+    border-bottom: 1px solid #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-top: 5px;
+}
+
+.time-slot .time {
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-size: 18px;
+    color: #000;
+}
+
+.temperature-block p {
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-size: 18px;
+    color: #000;
+}
+
+.temperature-block .value {
+    font-family: "Roboto", sans-serif;
+    font-weight: 400;
+    font-size: 18px;
+    color: #000;
+}
+
+.weather-data {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.time-slot img {
+    width: 35px;
+    height: 33px;
 }

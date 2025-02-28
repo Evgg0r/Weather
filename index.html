@@ -11,38 +11,48 @@
 <body>
     <main>
         <div class="search-bar">
-            <span class="search-span">Aktobe</span>
-            <button class="search-button" >
-                <img src="./search.svg" alt="Search">
+            <input type="text" class="search-input" placeholder="Введите город">
+            <button class="search-button">
+                <img src="./icons/Search.svg" alt="Search">
             </button>
         </div>
         <div class="info-section">
             <div class="info-current">
-                <span class="temperature">14&deg;</span>
-                <img class="weather-icon" src="./icon-cloud.png" alt="Cloudy">
                 <div class="city-info">
-                    <span class="city-name">Aktobe</span>
-                    <button class="save-favourites">
-                        <img src="./Shape.svg" alt="">
+                    <span class="city-current"></span>
+                    <button class="save-favorites">
+                        <img class='shape' src="./icons/Shape.svg" alt="">
                     </button>
                 </div>
+                <div class="info-temp-container">
+                    
+                </div>
+
+                <div class="main-forecast-blog">
+                    <p class="maim-temp-feels-like">Feels like: <span class="maim-temp-feels-like-value"></span></p>
+                    <p class="sunrise">Sunrise: <span class="sunrise-time"></span></p>
+                    <p class="sunset">Sunset: <span class="sunset-time"></span></p>
+                </div>
+
+                <ul class="forecast-day">
+
+                </ul>
             </div>
+
             <div class="info-locations">
                 <div class="locations-info">
                     <span class="location-info">Added Locations:</span>
                 </div>
                 <div class="listed">
-                    <ul class="list">
-                        <li>Amur</li>
-                        <li>Samara</li>
-                        <li>Bali</li>
-                        <li>Dane</li>
-                        <li>Kilo</li>
+                    <ul class="city-list">
+
                     </ul>
                 </div>
             </div>
         </div>
     </main>
+    <script type="module" src="./main.js"></script>
+    <script type="module" src="./constants.js"></script>
 </body>
 
 </html>
