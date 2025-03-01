@@ -7,7 +7,6 @@ import {
     SEARCH_BTN,
     ADD_FAVORITES_BTN,
     FAVORITES_LIST,
-    ABSOLUTE_ZERO_CELSIUS,
     FORECAST_DAY,
     INFO_TEMPERATURE_CONT,
     MAIN_FORECAST_CONT,
@@ -15,45 +14,71 @@ import {
 
 import {
     fetchWeatherData,
+    createSrcIconWeather,
 } from "./fetch.js";
+
+import {
+    favoriteImg,
+    convertKelvinToCelsius,
+    formatTimestampToTime,
+} from "./utils.js";
+
+import {
+    storage,
+} from "./storage.js";
 
 let favoriteCities = [];
 let currentCity = '';
 
-SEARCH_BTN.addEventListener('click', () => {
-    currentCity = INPUT_CITY.value.trim();
-    addCityName(currentCity);
-});
+document.addEventListener('DOMContentLoaded', () => {
+    favoriteCities = storage.loadFavoriteCities();
+    renderCities();
 
-INPUT_CITY.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        currentCity = INPUT_CITY.value.trim();
-        addCityName(currentCity);
+    const loadedCurrentCity = storage.loadCurrentCity();
+    if (loadedCurrentCity) {
+        currentCity = loadedCurrentCity;
+        NAME_CITY_SELECTED.textContent = currentCity;
+        addWeatherTemp(currentCity);
     }
 });
 
-ADD_FAVORITES_BTN.addEventListener('click', function () {
-    addFavoritesList(currentCity)
+
+SEARCH_BTN.addEventListener('click', () => {
+    currentCity = INPUT_CITY.value.trim();
+    if (currentCity === '') {
+        return alert("Пожалуйста, введите название города.");
+    }
+    addCityName(currentCity)
 });
 
-const addCityName = (City) => {
-    fetchWeatherData(City, SERVER_URL_FORECAST)
-        .then(data => {
-            console.log(data);
+INPUT_CITY.addEventListener('keypress', (e) => {
+    currentCity = INPUT_CITY.value.trim();
+    if (e.key === 'Enter' && currentCity === '') {
+        return alert("Пожалуйста, введите название города.");
+    }
+    addCityName(currentCity)
 
-            if (City !== "") {
-                currentCity = data.city.name
-                NAME_CITY_SELECTED.textContent = currentCity;
-                INPUT_CITY.value = '';
-                addWeatherTemp(currentCity)
-                if (favoriteCities.find(el => el.nameCity === currentCity)) {
-                    SHAPE_IMG.setAttribute('src', './icons/Shape-full.svg');
-                } else {
-                    SHAPE_IMG.setAttribute('src', './icons/Shape.svg');
-                }
-            } else {
-                return alert("Пожалуйста, введите название города.");
-            }
+});
+
+ADD_FAVORITES_BTN.addEventListener('click', () => {
+    const foundCity = favoriteCities.find(el => el.nameCity === currentCity)
+    if (foundCity) {
+        deleteCity(foundCity.id)
+        favoriteImg(currentCity, favoriteCities)
+    } else {
+        addFavoritesList(currentCity)
+    }
+});
+
+const addCityName = (city) => {
+    fetchWeatherData(city, SERVER_URL_FORECAST)
+        .then(data => {
+            currentCity = data.city.name
+            storage.saveCurrentCity(currentCity);
+            NAME_CITY_SELECTED.textContent = currentCity;
+            INPUT_CITY.value = '';
+            addWeatherTemp(currentCity)
+            favoriteImg(currentCity, favoriteCities)
         })
         .catch(error => {
             console.error('Ошибка при добавлении города:', error.message);
@@ -85,34 +110,26 @@ const renderCities = () => {
 }
 
 const deleteCity = (id) => {
-    const newFavoriteCities = favoriteCities.filter((city) => city.id !== id)
-    favoriteCities = newFavoriteCities
+    favoriteCities = favoriteCities.filter((city) => city.id !== id)
+    storage.saveFavoriteCities(favoriteCities);
+    favoriteImg(currentCity, favoriteCities)
     renderCities()
 }
 
 const addFavoritesList = (City) => {
     if (favoriteCities.find(el => el.nameCity === City)) {
         return
-    };
+    }
+
     const newCity = {
         id: new Date().getTime(),
         nameCity: City,
     }
+
     favoriteCities.push(newCity);
     SHAPE_IMG.setAttribute('src', './icons/Shape-full.svg');
-
+    storage.saveFavoriteCities(favoriteCities);
     renderCities();
-}
-
-const convertKelvinToCelsius = function (temp) {
-    return Math.floor(temp - ABSOLUTE_ZERO_CELSIUS)
-};
-
-const formatTimestampToTime = (timeStamp) => {
-    const newTimeStamp = new Date(timeStamp * 1000)
-    const hoursSunrise = String(newTimeStamp.getHours()).padStart(2, '0');
-    const minutesSunrise = String(newTimeStamp.getMinutes()).padStart(2, '0');
-    return `${hoursSunrise}:${minutesSunrise}`;
 }
 
 const addWeatherTemp = (currentCity) => {
@@ -141,8 +158,7 @@ const renderWeatherCity = (data) => {
 
     const temperatureAir = document.createElement('span');
     temperatureAir.classList.add('temperature-air');
-    temperatureAir.textContent = convertKelvinToCelsius(data.main.temp);;
-
+    temperatureAir.textContent = convertKelvinToCelsius(data.main.temp);
 
     const weatherIcon = document.createElement('img');
     weatherIcon.classList.add('weather-icon');
@@ -214,8 +230,4 @@ const renderForecastBlog = (data) => {
     MAIN_FORECAST_CONT.appendChild(feelsLike)
     MAIN_FORECAST_CONT.appendChild(sunrise)
     MAIN_FORECAST_CONT.appendChild(sunset)
-}
-
-const createSrcIconWeather = (iconCod) => {
-    return `https://openweathermap.org/img/wn/${iconCod}@2x.png`
 }
