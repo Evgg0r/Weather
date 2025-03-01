@@ -7,7 +7,6 @@ import {
     SEARCH_BTN,
     ADD_FAVORITES_BTN,
     FAVORITES_LIST,
-    ABSOLUTE_ZERO_CELSIUS,
     FORECAST_DAY,
     INFO_TEMPERATURE_CONT,
     MAIN_FORECAST_CONT,
@@ -15,45 +14,74 @@ import {
 
 import {
     fetchWeatherData,
+    createSrcIconWeather,
 } from "./fetch.js";
 
-let favoriteCities = [];
-let currentCity = '';
+import {
+    favoriteImg,
+    convertKelvinToCelsius,
+    formatTimestampToTime,
+} from "./utils.js";
 
-SEARCH_BTN.addEventListener('click', () => {
-    currentCity = INPUT_CITY.value.trim();
-    addCityName(currentCity);
-});
+import {
+    storage,
+} from "./storage.js";
 
-INPUT_CITY.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        currentCity = INPUT_CITY.value.trim();
-        addCityName(currentCity);
+let favoriteCities
+let currentCity
+
+document.addEventListener('DOMContentLoaded', () => {
+    favoriteCities = storage.loadFavoriteCities() ?? [];
+    renderCities();
+
+    currentCity = storage.loadCurrentCity() ?? '';
+    if (currentCity) {
+        NAME_CITY_SELECTED.textContent = currentCity;
+        addWeatherTemp(currentCity);
     }
 });
 
-ADD_FAVORITES_BTN.addEventListener('click', function () {
-    addFavoritesList(currentCity)
+
+SEARCH_BTN.addEventListener('click', () => {
+    currentCity = INPUT_CITY.value.trim() ?? '';
+    if (currentCity === '') {
+        return alert("Пожалуйста, введите название города.");
+    }
+    addCityName(currentCity)
 });
 
-const addCityName = (City) => {
-    fetchWeatherData(City, SERVER_URL_FORECAST)
-        .then(data => {
-            console.log(data);
+INPUT_CITY.addEventListener('keypress', (e) => {
+    if (e.key !== 'Enter') return;
+    currentCity = INPUT_CITY.value.trim();
 
-            if (City !== "") {
-                currentCity = data.city.name
-                NAME_CITY_SELECTED.textContent = currentCity;
-                INPUT_CITY.value = '';
-                addWeatherTemp(currentCity)
-                if (favoriteCities.find(el => el.nameCity === currentCity)) {
-                    SHAPE_IMG.setAttribute('src', './icons/Shape-full.svg');
-                } else {
-                    SHAPE_IMG.setAttribute('src', './icons/Shape.svg');
-                }
-            } else {
-                return alert("Пожалуйста, введите название города.");
-            }
+    if (currentCity === '') {
+        alert("Пожалуйста, введите название города.");
+        return;
+    }
+
+    addCityName(currentCity)
+});
+
+ADD_FAVORITES_BTN.addEventListener('click', () => {
+    const foundCity = favoriteCities.find(el => el.nameCity === currentCity) ?? null;
+    if (foundCity) {
+        deleteCity(foundCity.id)
+        favoriteImg(currentCity, favoriteCities)
+    } else {
+        console.log()
+        addFavoritesList(currentCity)
+    }
+});
+
+const addCityName = (city) => {
+    fetchWeatherData(city, SERVER_URL_FORECAST)
+        .then(data => {
+            currentCity = data?.city?.name ?? '';
+            storage.saveCurrentCity(currentCity);
+            NAME_CITY_SELECTED.textContent = currentCity;
+            INPUT_CITY.value = '';
+            addWeatherTemp(currentCity)
+            favoriteImg(currentCity, favoriteCities)
         })
         .catch(error => {
             console.error('Ошибка при добавлении города:', error.message);
@@ -85,34 +113,26 @@ const renderCities = () => {
 }
 
 const deleteCity = (id) => {
-    const newFavoriteCities = favoriteCities.filter((city) => city.id !== id)
-    favoriteCities = newFavoriteCities
+    favoriteCities = favoriteCities.filter((city) => city.id !== id)
+    storage.saveFavoriteCities(favoriteCities);
+    favoriteImg(currentCity, favoriteCities)
     renderCities()
 }
 
 const addFavoritesList = (City) => {
     if (favoriteCities.find(el => el.nameCity === City)) {
         return
-    };
+    }
+
     const newCity = {
         id: new Date().getTime(),
         nameCity: City,
     }
+
     favoriteCities.push(newCity);
     SHAPE_IMG.setAttribute('src', './icons/Shape-full.svg');
-
+    storage.saveFavoriteCities(favoriteCities);
     renderCities();
-}
-
-const convertKelvinToCelsius = function (temp) {
-    return Math.floor(temp - ABSOLUTE_ZERO_CELSIUS)
-};
-
-const formatTimestampToTime = (timeStamp) => {
-    const newTimeStamp = new Date(timeStamp * 1000)
-    const hoursSunrise = String(newTimeStamp.getHours()).padStart(2, '0');
-    const minutesSunrise = String(newTimeStamp.getMinutes()).padStart(2, '0');
-    return `${hoursSunrise}:${minutesSunrise}`;
 }
 
 const addWeatherTemp = (currentCity) => {
@@ -141,12 +161,11 @@ const renderWeatherCity = (data) => {
 
     const temperatureAir = document.createElement('span');
     temperatureAir.classList.add('temperature-air');
-    temperatureAir.textContent = convertKelvinToCelsius(data.main.temp);;
-
+    temperatureAir.textContent = convertKelvinToCelsius(data?.main?.temp ?? 0);
 
     const weatherIcon = document.createElement('img');
     weatherIcon.classList.add('weather-icon');
-    weatherIcon.src = createSrcIconWeather(data.weather[0].icon);
+    weatherIcon.src = createSrcIconWeather(data?.weather?.[0]?.icon ?? '');
     weatherIcon.alt = "Weather Icon";
 
     INFO_TEMPERATURE_CONT.appendChild(temperatureAir);
@@ -163,7 +182,7 @@ const renderForecastDay = (data) => {
 
         const timeSpan = document.createElement('span');
         timeSpan.classList.add('time');
-        timeSpan.textContent = formatTimestampToTime(data.list[i].dt);
+        timeSpan.textContent = formatTimestampToTime(data?.list?.[i]?.dt ?? "Нет данных о времени");
 
         const weatherDataDiv = document.createElement('div');
         weatherDataDiv.classList.add('weather-data');
@@ -172,18 +191,18 @@ const renderForecastDay = (data) => {
         temperatureBlock.classList.add('temperature-block');
 
         const temperatureParagraph = document.createElement('p');
-        temperatureParagraph.innerHTML = `Temperature: <span class="value">${convertKelvinToCelsius(data.list[i].main.temp)}</span>`;
+        temperatureParagraph.innerHTML = `Temperature: <span class="value">${convertKelvinToCelsius(data?.list?.[i]?.main?.temp ?? "Нет данных о температуре")}</span>`;
         temperatureBlock.appendChild(temperatureParagraph);
 
         const feelsLikeParagraph = document.createElement('p');
-        feelsLikeParagraph.innerHTML = `Feels like: <span class="value">${convertKelvinToCelsius(data.list[i].main.feels_like)}</span>`;
+        feelsLikeParagraph.innerHTML = `Feels like: <span class="value">${convertKelvinToCelsius(data?.list?.[i]?.main?.feels_like ?? "Нет данных о температуре")}</span>`;
         temperatureBlock.appendChild(feelsLikeParagraph);
 
         weatherDataDiv.appendChild(temperatureBlock);
 
         const weatherIcon = document.createElement('img');
         weatherIcon.classList.add('weather-icon');
-        weatherIcon.src = createSrcIconWeather(data.list[i].weather[0].icon);
+        weatherIcon.src = createSrcIconWeather(data?.list?.[i]?.weather?.[0]?.icon ?? '');
         weatherIcon.alt = 'not';
         weatherDataDiv.appendChild(weatherIcon);
 
@@ -201,21 +220,17 @@ const renderForecastBlog = (data) => {
 
     const feelsLike = document.createElement('li');
     feelsLike.classList.add('maim-temp-feels-like');
-    feelsLike.innerHTML = `Feels like: <span class="value">${convertKelvinToCelsius(data.main.feels_like)}</span>`;
+    feelsLike.innerHTML = `Feels like: <span class="value">${convertKelvinToCelsius(data?.main?.feels_like ?? 'нет данных о температуре')}</span>`;
 
     const sunrise = document.createElement('li');
     sunrise.classList.add('sunrise');
-    sunrise.innerHTML = `Sunrise: <span class="value">${formatTimestampToTime(data.sys.sunrise)}</span>`;
+    sunrise.innerHTML = `Sunrise: <span class="value">${formatTimestampToTime(data?.sys?.sunrise ?? "нет данных о времени")}</span>`;
 
     const sunset = document.createElement('li');
     sunset.classList.add('sunset');
-    sunset.innerHTML = `Sunset: <span class="value">${formatTimestampToTime(data.sys.sunset)}</span>`;
+    sunset.innerHTML = `Sunset: <span class="value">${formatTimestampToTime(data?.sys?.sunset ?? "нет данных о времени")}</span>`;
 
     MAIN_FORECAST_CONT.appendChild(feelsLike)
     MAIN_FORECAST_CONT.appendChild(sunrise)
     MAIN_FORECAST_CONT.appendChild(sunset)
-}
-
-const createSrcIconWeather = (iconCod) => {
-    return `https://openweathermap.org/img/wn/${iconCod}@2x.png`
 }
